@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import styled from "styled-components";
-
+import db from "../firebase/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 
 
 const Formulario = () => {
@@ -8,8 +9,23 @@ const Formulario = () => {
     const [nombre, setNombre] = useState('');
     const [correo, setcorreo] = useState('');
 
+	const onSubmit = async (e) => {
+		e.preventDefault();
+		// console.log(e);
+		try{
+			await addDoc(collection(db, 'usuarios'), {
+				nombre: nombre,
+				correo: correo
+			})
+		} catch (error) {
+			console.log(error);
+		}
+
+		setNombre('') // Limpiar el input
+		setcorreo('') // Limpiar el input
+	}
 	return (
-		<form action="">
+		<form action="" onSubmit={onSubmit}>
             <Input type="text" name="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" />
             <Input type="email" name="Email" value={correo} onChange={(e) => setcorreo(e.target.value)} placeholder="Email" />
             <Boton type="submit">Agregar</Boton>
