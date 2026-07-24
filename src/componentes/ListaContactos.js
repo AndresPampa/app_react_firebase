@@ -1,17 +1,33 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import styled from "styled-components";
 import db from "../firebase/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import Contacto from "./Contacto";
 
 
 const ListaContactos = () => {
 
-    const [contactos, cambiarContactos] = useState([
-        {id: 1, nombre: "Juan", correo: "juan@correo.com"},
-        {id: 2, nombre: "Maria", correo: "maria@correo.com"},
-        {id: 3, nombre: "Pedro", correo: "pedro@correo.com"},
-    ]);
+    const [contactos, cambiarContactos] = useState('');
+
+    useEffect(() => {
+        onSnapshot(
+            collection(db, "usuarios"),
+            (snapshot) => {
+                // console.log("Se ejecuto Snapshot")
+                // console.log("snapshot", snapshot)
+                // console.log(snapshot.docs[0].data())
+                const arregloUsuarios = snapshot.docs.map((documento) =>{
+                    return {...documento.data(), id: documento.id}
+                });
+
+                // console.log("arregloUsuarios", arregloUsuarios)
+                cambiarContactos(arregloUsuarios);
+            }, 
+            (error) => {
+                console.log(error);
+            }
+        );
+    }, [])
     
     return (
         contactos.length > 0 &&

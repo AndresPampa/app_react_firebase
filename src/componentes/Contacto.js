@@ -1,19 +1,46 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import db from "../firebase/firebaseConfig";
+import {doc, deleteDoc, updateDoc} from "firebase/firestore";
 
 
 const Contacto = ({id, nombre, correo}) => {
 
     const [editandoTarea, cambiarEditandoTarea] = useState(false);
+	const [NuevoNombre, cambiarNuevoNombre] = useState(nombre);
+	const [NuevoCorreo, cambiarNuevoCorreo] = useState(correo);
+
+	const actualizarContacto = async (e) => {
+		e.preventDefault();
+		try{
+			await updateDoc(doc(db, 'usuarios', id), {
+				nombre: NuevoNombre,
+				correo: NuevoCorreo
+			});
+		} catch (error) {
+			console.log('Error al actualizar el contacto');
+			console.log(error);
+		}
+		cambiarEditandoTarea(false);
+	}
+
+	const eliminarContacto = async (id) => {
+		try{
+			await deleteDoc(doc(db, 'usuarios', id));
+		} catch (error) {
+			console.log('Error al eliminar el contacto');
+			console.log(error);
+		}
+		cambiarEditandoTarea(false);
+	}
 
     return (
         <ContenedorContacto>
             {
                 editandoTarea ? 
-                    <form action="">
-                        <Input type="text" name="nombre" placeholder="Nombre" />
-                        <Input type="text" name="correo" placeholder="Correo" />
+                    <form action="" onSubmit={actualizarContacto}>
+                        <Input type="text" name="nombre" placeholder="Nombre" value={NuevoNombre} onChange={(e) => cambiarNuevoNombre(e.target.value)}/>
+                        <Input type="text" name="correo" placeholder="Correo" value={NuevoCorreo} onChange={(e) => cambiarNuevoCorreo(e.target.value)}/>
                         <Boton type="submit">Actualizar</Boton>
                     </form>
                     :
@@ -21,7 +48,7 @@ const Contacto = ({id, nombre, correo}) => {
                         <Nombre>{nombre}</Nombre>
                         <Correo>{correo}</Correo>
                         <Boton onClick={() => cambiarEditandoTarea(!editandoTarea)}>Editar</Boton>
-                        {/* <Boton onClick={() => eliminarContacto(id)}>Eliminar</Boton> */}
+                        <Boton onClick={() => eliminarContacto(id)}>Borrar</Boton>
                     </>
             }
             
